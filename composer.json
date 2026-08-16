@@ -1,0 +1,28 @@
+{
+    "name": "aftermath/aftermath-laravel",
+    "description": "Laravel SDK for Aftermath application monitoring.",
+    "type": "library",
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^11.0|^12.0|^13.0",
+        "illuminate/http": "^11.0|^12.0|^13.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Aftermath\\": "src/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "require-dev": {
+        "laravel/framework": "^6.0 | ^7.0 | ^8.0 | ^9.0 | ^10.0 | ^11.0 | ^12.0 | ^13.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Aftermath\\AftermathServiceProvider"
+            ]
+        }
+    }
+}
