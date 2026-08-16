@@ -39,6 +39,30 @@ AFTERMATH_ENVIRONMENT=production
 AFTERMATH_ENABLED=true
 ```
 
+### Logging
+
+The package automatically registers an `aftermath` logging channel. Send log
+entries to it to capture them in Aftermath:
+
+```php
+use Illuminate\Support\Facades\Log;
+
+Log::channel('aftermath')->error('Payment processing failed', [
+    'order_id' => $order->id,
+]);
+```
+
+Log reporting is enabled by default and captures entries at the configured
+minimum level. Configure or disable it in `.env`:
+
+```dotenv
+AFTERMATH_LOGGING_ENABLED=true
+AFTERMATH_LOGGING_LEVEL=warning
+```
+
+When `AFTERMATH_LOGGING_LEVEL` is not set, the package uses `LOG_LEVEL`, or
+`debug` if neither value is configured.
+
 ## Integration
 
 Register Aftermath in your application's exception configuration. In
