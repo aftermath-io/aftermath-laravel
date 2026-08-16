@@ -9,14 +9,8 @@ class AftermathServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/aftermath.php', 'aftermath');
-        $this->mergeConfigFrom(__DIR__ . '/../config/aftermath_internal.php', 'aftermath_internal');
-        
-        $this->registerLoggingChannel();
-
-        $this->app->singleton('aftermath', function () {
-            return new Aftermath(new HttpTransport());
-        });
+        $this->mergeConfigs();
+        $this->registerFacade();
     }
 
     public function boot(): void
@@ -26,12 +20,17 @@ class AftermathServiceProvider extends ServiceProvider
         ], 'config');
     }
 
-    protected function registerLoggingChannel(): void
+    protected function mergeConfigs(): void
     {
-        $this->app->make('log')->extend('aftermath', function ($app, $config) {
-            return new \Monolog\Logger('aftermath', [
-                new \Aftermath\Logging\AftermathLoggingHandler(),
-            ]);
+        $this->mergeConfigFrom(__DIR__ . '/../config/aftermath.php', 'aftermath');
+        $this->mergeConfigFrom(__DIR__ . '/../config/aftermath_internal.php', 'aftermath_internal');
+        $this->mergeConfigFrom(__DIR__ . '/../config/logging.php', 'logging');
+    }
+
+    protected function registerFacade(): void
+    {
+        $this->app->singleton('aftermath', function () {
+            return new Aftermath(new HttpTransport());
         });
     }
 }
