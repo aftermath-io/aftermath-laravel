@@ -15,6 +15,18 @@ class AftermathLoggingHandler extends AbstractProcessingHandler
 
     protected function write(LogRecord $record): void
     {
+        if (!app()->bound('aftermath')) {
+            return;
+        }
+
+        if (config('aftermath.logging.enabled') === false) {
+            return;
+        }
+
+        if ($record->level < Level::fromValue(config('aftermath.logging.level', 'debug'))) {
+            return;
+        }
+
         app('aftermath')->captureLog(new \Aftermath\Event\LogEvent($record));
     }
 }

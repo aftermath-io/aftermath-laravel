@@ -9,4 +9,9 @@ return [
     ),
 
     'enabled' => env('AFTERMATH_ENABLED', true),
+
+    'logging' => [
+        'enabled' => env('AFTERMATH_LOGGING_ENABLED', true),
+        'level' => env('AFTERMATH_LOGGING_LEVEL', env('LOG_LEVEL', 'debug')),
+    ],
 ];
