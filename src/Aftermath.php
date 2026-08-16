@@ -5,6 +5,7 @@ namespace Aftermath;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Aftermath\Event\ExceptionEvent;
+use Aftermath\Event\LogEvent;
 use Aftermath\Transport\HttpTransport;
 use Throwable;
 
@@ -36,6 +37,21 @@ final class Aftermath
         try {
             $event = new ExceptionEvent($throwable);
     
+            $this->transport->send($event->toArray());
+        } catch (\Throwable $e) {
+            if (Config::get('aftermath_internal.debug')) {
+                throw $e;
+            }
+        }
+    }
+
+    public function captureLog(LogEvent $event): void
+    {
+        if (!self::enabled()) {
+            return;
+        }
+
+        try {
             $this->transport->send($event->toArray());
         } catch (\Throwable $e) {
             if (Config::get('aftermath_internal.debug')) {
