@@ -2,6 +2,7 @@
 
 namespace Aftermath;
 
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\ServiceProvider;
 use Aftermath\Transport\HttpTransport;
 
@@ -11,6 +12,7 @@ class AftermathServiceProvider extends ServiceProvider
     {
         $this->mergeConfigs();
         $this->registerFacade();
+        $this->registerLoggingChannel();
     }
 
     public function boot(): void
@@ -32,5 +34,21 @@ class AftermathServiceProvider extends ServiceProvider
         $this->app->singleton('aftermath', function () {
             return new Aftermath(new HttpTransport());
         });
+    }
+
+    protected function registerLoggingChannel(): void
+    {
+        $config = $this->app->get(Repository::class);
+
+        if (!array_key_exists('aftermath', $config->get('logging.channels', []))) {
+            $channels = $config->get('logging.channels', []);
+            $channels['aftermath'] = [
+                'driver' => 'monolog',
+                'handler' => \Aftermath\Logging\AftermathLoggingHandler::class,
+                'level' => 'debug',
+            ];
+
+            $config->set('logging.channels', $channels);
+        }
     }
 }
