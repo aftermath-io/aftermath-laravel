@@ -63,6 +63,17 @@ AFTERMATH_LOGGING_LEVEL=warning
 When `AFTERMATH_LOGGING_LEVEL` is not set, the package uses `LOG_LEVEL`, or
 `debug` if neither value is configured.
 
+## Event format
+
+Events are sent to `POST /api/ingest/{dsn}` with a UUID event ID, UTC ISO 8601
+timestamp, environment, type, and payload. Exception events use
+`payload.exception.values` with Sentry-compatible stack frames; chained PHP
+exceptions are sent as separate values. Log events use `payload.log` with the
+Monolog severity, message, formatted message when available, and channel.
+
+Laravel log context and Monolog extra data are retained under
+`payload.metadata`; both event types include PHP runtime metadata.
+
 ## Integration
 
 Register Aftermath in your application's exception configuration. In

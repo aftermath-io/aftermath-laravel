@@ -18,23 +18,33 @@ final readonly class LogEvent
 
             'type' => 'log',
 
-            'timestamp' => date("Y-m-d H:i:s"),
+            'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
 
             'environment' => Config::get('aftermath.environment'),
 
             'payload' => [
+                'level' => $this->record->level->toPsrLogLevel(),
+
                 'log' => [
                     'message' => $this->record->message,
-                    'context' => $this->record->context,
-                    'level' => $this->record->level->value,
-                    'channel' => $this->record->channel,
-                    'datetime' => $this->record->datetime,
+                    'formatted_message' => is_string($this->record->formatted)
+                        ? $this->record->formatted
+                        : null,
+                    'parameters' => [],
+                    'logger' => $this->record->channel,
                 ],
 
-                'runtime' => [
-                    'php' => PHP_VERSION,
+                'metadata' => [
+                    'contexts' => array_filter([
+                        'runtime' => [
+                            'name' => 'PHP',
+                            'version' => PHP_VERSION,
+                        ],
+                        'log' => $this->record->context ?: null,
+                    ]),
+                    'extra' => $this->record->extra ?: null,
                 ],
             ],
-            ];
+        ];
     }
 }
