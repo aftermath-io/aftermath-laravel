@@ -23,7 +23,7 @@ class AftermathLoggingHandler extends AbstractProcessingHandler
             return;
         }
 
-        if ($record->level < Level::fromValue(config('aftermath.logging.level', 'debug'))) {
+        if ($record->level < Level::fromName(config('aftermath.logging.level', 'debug'))) {
             return;
         }
 
