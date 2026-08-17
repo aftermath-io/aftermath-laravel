@@ -52,8 +52,13 @@ Log::channel('aftermath')->error('Payment processing failed', [
 ]);
 ```
 
-Log reporting is enabled by default and captures entries at the configured
-minimum level. Configure or disable it in `.env`:
+Enable logging by adding it to the log stack.
+
+```dotenv
+LOG_STACK=single,aftermath
+```
+
+You can disable it or change the level by setting the .env settings:
 
 ```dotenv
 AFTERMATH_LOGGING_ENABLED=true
