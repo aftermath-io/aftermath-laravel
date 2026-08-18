@@ -2,39 +2,29 @@
 
 namespace Aftermath\Event;
 
-use Illuminate\Support\Facades\Config;
-
-final readonly class ExceptionEvent
+final readonly class ExceptionEvent extends AbstractEvent
 {
     public function __construct(
         public readonly \Throwable $throwable,
     ) {}
 
-    public function toArray(): array
+    protected function type(): string
+    {
+        return 'exception';
+    }
+
+    protected function payload(): array
     {
         return [
-            'event_id' => (string) str()->uuid(),
+            'level' => 'error',
 
-            'type' => 'exception',
+            'exception' => [
+                'values' => $this->exceptions(),
+            ],
 
-            'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
-
-            'environment' => Config::get('aftermath.environment'),
-
-            'payload' => [
-                'level' => 'error',
-
-                'exception' => [
-                    'values' => $this->exceptions(),
-                ],
-
-                'metadata' => [
-                    'contexts' => [
-                        'runtime' => [
-                            'name' => 'PHP',
-                            'version' => PHP_VERSION,
-                        ],
-                    ],
+            'metadata' => [
+                'contexts' => [
+                    'runtime' => $this->runtimeContext(),
                 ],
             ],
         ];

@@ -2,48 +2,39 @@
 
 namespace Aftermath\Event;
 
-use Illuminate\Support\Facades\Config;
 use Monolog\LogRecord;
 
-final readonly class LogEvent
+final readonly class LogEvent extends AbstractEvent
 {
     public function __construct(
         private readonly LogRecord $record,
     ) {}
 
-    public function toArray(): array
+    protected function type(): string
+    {
+        return 'log';
+    }
+
+    protected function payload(): array
     {
         return [
-            'event_id' => (string) str()->uuid(),
+            'level' => $this->record->level->toPsrLogLevel(),
 
-            'type' => 'log',
+            'log' => [
+                'message' => $this->record->message,
+                'formatted_message' => is_string($this->record->formatted)
+                    ? $this->record->formatted
+                    : null,
+                'parameters' => [],
+                'logger' => $this->record->channel,
+            ],
 
-            'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
-
-            'environment' => Config::get('aftermath.environment'),
-
-            'payload' => [
-                'level' => $this->record->level->toPsrLogLevel(),
-
-                'log' => [
-                    'message' => $this->record->message,
-                    'formatted_message' => is_string($this->record->formatted)
-                        ? $this->record->formatted
-                        : null,
-                    'parameters' => [],
-                    'logger' => $this->record->channel,
-                ],
-
-                'metadata' => [
-                    'contexts' => array_filter([
-                        'runtime' => [
-                            'name' => 'PHP',
-                            'version' => PHP_VERSION,
-                        ],
-                        'log' => $this->record->context ?: null,
-                    ]),
-                    'extra' => $this->record->extra ?: null,
-                ],
+            'metadata' => [
+                'contexts' => array_filter([
+                    'runtime' => $this->runtimeContext(),
+                    'log' => $this->record->context ?: null,
+                ]),
+                'extra' => $this->record->extra ?: null,
             ],
         ];
     }
