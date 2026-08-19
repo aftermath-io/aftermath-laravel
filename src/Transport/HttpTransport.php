@@ -13,6 +13,12 @@ class HttpTransport
             ->post($this->getUrl(Config::get('aftermath.dsn')), $event);
     }
 
+    public function sendTrace(array $trace): void
+    {
+        Http::timeout(2)
+            ->post(sprintf('%s/trace', $this->getUrl(Config::get('aftermath.dsn'))), $trace);
+    }
+
     public function getUrl($dsn): string
     {
         if (Config::get('aftermath_internal.debug')) {

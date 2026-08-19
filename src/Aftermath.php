@@ -6,13 +6,17 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Aftermath\Event\ExceptionEvent;
 use Aftermath\Event\LogEvent;
+use Aftermath\Tracing\TracingManager;
 use Aftermath\Transport\HttpTransport;
 use Throwable;
 
 final class Aftermath
 {
+    protected static string $traceId;
+
     public function __construct(
         private readonly HttpTransport $transport,
+        private bool $exceptionWasReported = false,
     )
     {}
 
@@ -38,6 +42,8 @@ final class Aftermath
             $event = new ExceptionEvent($throwable);
     
             $this->transport->send($event->toArray());
+
+            $this->exceptionWasReported = true;
         } catch (\Throwable $e) {
             if (Config::get('aftermath_internal.debug')) {
                 throw $e;
@@ -58,5 +64,15 @@ final class Aftermath
                 throw $e;
             }
         }
+    }
+
+    public function exceptionWasReported(): bool
+    {
+        return $this->exceptionWasReported;
+    }
+
+    public function resetExceptionReported(): void
+    {
+        $this->exceptionWasReported = false;
     }
 }

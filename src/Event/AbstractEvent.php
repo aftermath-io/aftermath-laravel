@@ -3,6 +3,7 @@
 namespace Aftermath\Event;
 
 use Illuminate\Support\Facades\Config;
+use Aftermath\Tracing\TracingManager;
 
 abstract readonly class AbstractEvent
 {
@@ -10,6 +11,8 @@ abstract readonly class AbstractEvent
     {
         return [
             'event_id' => (string) str()->uuid(),
+
+            'trace_id' => app(TracingManager::class)->getCurrentTrace()?->getId(),
 
             'type' => $this->type(),
 

@@ -14,4 +14,10 @@ return [
         'enabled' => env('AFTERMATH_LOGGING_ENABLED', true),
         'level' => env('AFTERMATH_LOGGING_LEVEL', env('LOG_LEVEL', 'debug')),
     ],
+
+    'tracing' => [
+        'enabled' => env('AFTERMATH_TRACING_ENABLED', true),
+        'sample_rate' => env('AFTERMATH_TRACING_SAMPLE_RATE', 1.0),
+        'manager_class' => Aftermath\Tracing\AftermathTracingManager::class,
+    ],
 ];

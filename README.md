@@ -68,6 +68,25 @@ AFTERMATH_LOGGING_LEVEL=warning
 When `AFTERMATH_LOGGING_LEVEL` is not set, the package uses `LOG_LEVEL`, or
 `debug` if neither value is configured.
 
+### Tracing
+
+HTTP tracing is enabled by default. The package adds middleware that starts a
+server span for each incoming request, records its response status, and uses
+the matched route URI as the span name when Laravel resolves a route. Traces
+are sent when Laravel terminates the request.
+
+Configure tracing with the following environment variables:
+
+```dotenv
+AFTERMATH_TRACING_ENABLED=true
+AFTERMATH_TRACING_SAMPLE_RATE=1.0
+```
+
+`AFTERMATH_TRACING_SAMPLE_RATE` controls the fraction of completed traces that
+are sent: use `1.0` to send every trace and `0.0` to send none. Set
+`AFTERMATH_TRACING_ENABLED=false` to disable the tracing middleware and trace
+delivery entirely.
+
 ## Event format
 
 Events are sent to `POST /api/ingest/{dsn}` with a UUID event ID, UTC ISO 8601
