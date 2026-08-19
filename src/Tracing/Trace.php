@@ -30,8 +30,8 @@ class Trace implements JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'traceId' => $this->traceId,
-            'startedAt' => $this->startedAt,
+            'trace_id' => $this->traceId,
+            'started_at' => $this->startedAt,
             'spans' => array_map(fn (Span $span) => $span->jsonSerialize(), $this->spans),
         ];
     }

@@ -39,14 +39,14 @@ final class Span implements JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'traceId' => $this->traceId,
-            'spanId' => $this->spanId,
-            'parentSpanId' => $this->parentSpanId,
+            'trace_id' => $this->traceId,
+            'span_id' => $this->spanId,
+            'parent_span_id' => $this->parentSpanId,
             'name' => $this->name,
             'status' => $this->status,
             'kind' => $this->kind,
-            'startedAt' => $this->startedAt,
-            'finishedAt' => $this->finishedAt,
+            'started_at' => $this->startedAt,
+            'finished_at' => $this->finishedAt,
             'attributes' => $this->attributes,
         ];
     }
