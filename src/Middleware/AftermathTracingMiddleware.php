@@ -24,6 +24,8 @@ class AftermathTracingMiddleware
             kind: 'server',
         );
 
+        $span->attribute('http.method', $request->method());
+
         try {
             $response = $next($request);
 
