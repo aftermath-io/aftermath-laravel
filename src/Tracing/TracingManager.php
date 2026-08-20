@@ -4,6 +4,7 @@ namespace Aftermath\Tracing;
 
 use JsonSerializable;
 use Aftermath\Tracing\Span;
+use Aftermath\Tracing\Trace;
 use Aftermath\Transport\HttpTransport;
 
 abstract class TracingManager
