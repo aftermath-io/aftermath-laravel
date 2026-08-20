@@ -2,12 +2,11 @@
 
 namespace Aftermath;
 
+use Aftermath\Transport\Transport;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Aftermath\Event\ExceptionEvent;
 use Aftermath\Event\LogEvent;
-use Aftermath\Tracing\TracingManager;
-use Aftermath\Transport\HttpTransport;
 use Throwable;
 
 final class Aftermath
@@ -15,7 +14,7 @@ final class Aftermath
     protected static string $traceId;
 
     public function __construct(
-        private readonly HttpTransport $transport,
+        private readonly Transport $transport,
         private bool $exceptionWasReported = false,
     )
     {}
@@ -41,7 +40,7 @@ final class Aftermath
         try {
             $event = new ExceptionEvent($throwable);
     
-            $this->transport->send($event->toArray());
+            $this->transport->sendEvent($event->toArray());
 
             $this->exceptionWasReported = true;
         } catch (\Throwable $e) {
@@ -58,7 +57,7 @@ final class Aftermath
         }
 
         try {
-            $this->transport->send($event->toArray());
+            $this->transport->sendEvent($event->toArray());
         } catch (\Throwable $e) {
             if (Config::get('aftermath_internal.debug')) {
                 throw $e;

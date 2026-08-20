@@ -3,6 +3,7 @@
 namespace Aftermath\Tracing;
 
 use JsonSerializable;
+use Carbon\Carbon;
 
 final class Span implements JsonSerializable
 {
@@ -11,7 +12,7 @@ final class Span implements JsonSerializable
         public readonly string $spanId,
         public readonly ?string $parentSpanId,
         public readonly string $status,
-        public readonly string $name,
+        public string $name,
         public readonly string $kind,
         public readonly float $startedAt,
         private array $attributes = [],
@@ -51,4 +52,3 @@ final class Span implements JsonSerializable
         ];
     }
 }
-  

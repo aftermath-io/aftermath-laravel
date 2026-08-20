@@ -8,6 +8,8 @@ return [
         env('APP_ENV', 'production')
     ),
 
+    'transport' => Aftermath\Transport\HttpTransport::class,
+
     'enabled' => env('AFTERMATH_ENABLED', true),
 
     'logging' => [

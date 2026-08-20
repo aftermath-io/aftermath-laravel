@@ -4,6 +4,7 @@ namespace Aftermath\Tracing;
 
 use Illuminate\Support\Str;
 use JsonSerializable;
+use Carbon\Carbon;
 
 class Trace implements JsonSerializable
 {
@@ -27,12 +28,24 @@ class Trace implements JsonSerializable
         return $this->traceId;
     }
 
+    public function addSpan(Span $span): void
+    {
+        $this->spans[] = $span;
+    }
+
     public function jsonSerialize(): array
     {
-        return [
+        $json = [
             'trace_id' => $this->traceId,
             'started_at' => $this->startedAt,
             'spans' => array_map(fn (Span $span) => $span->jsonSerialize(), $this->spans),
         ];
+
+        if (config('aftermath_internal.debug'))
+        {
+            logger()->debug('Span json', ['json' => $json]);
+        }
+
+        return $json;
     }
 }

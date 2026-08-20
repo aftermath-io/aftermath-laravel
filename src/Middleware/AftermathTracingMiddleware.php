@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AftermathTracingMiddleware 
+class AftermathTracingMiddleware
 {
     public function __construct(
         private readonly \Aftermath\Tracing\TracingManager $tracingManager,
@@ -46,7 +46,7 @@ class AftermathTracingMiddleware
         } finally {
             $this->tracingManager->getCurrentSpan()?->finish();
         }
-        
+
         return $response;
     }
 }

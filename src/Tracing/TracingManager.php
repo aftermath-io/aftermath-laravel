@@ -5,7 +5,7 @@ namespace Aftermath\Tracing;
 use JsonSerializable;
 use Aftermath\Tracing\Span;
 use Aftermath\Tracing\Trace;
-use Aftermath\Transport\HttpTransport;
+use Aftermath\Transport\Transport;
 
 abstract class TracingManager
 {
@@ -31,6 +31,6 @@ abstract class TracingManager
             return;
         }
 
-        app(HttpTransport::class)->sendTrace($trace->jsonSerialize());
+        app(Transport::class)->sendTrace($trace->jsonSerialize());
     }   
 }

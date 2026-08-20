@@ -33,6 +33,8 @@ class AftermathTracingManager extends TracingManager
 
         $this->currentSpan = $span;
 
+        $this->currentTrace->addSpan($span);
+
         return $span;
     }
 

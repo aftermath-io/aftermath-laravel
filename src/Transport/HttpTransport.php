@@ -4,10 +4,11 @@ namespace Aftermath\Transport;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Config;
+use Aftermath\Transport\Transport;
 
-class HttpTransport
+class HttpTransport implements Transport
 {
-    public function send(array $event): void
+    public function sendEvent(array $event): void
     {
         Http::timeout(2)
             ->post($this->getUrl(Config::get('aftermath.dsn')), $event);
@@ -15,8 +16,16 @@ class HttpTransport
 
     public function sendTrace(array $trace): void
     {
-        Http::timeout(2)
+        $response = Http::timeout(2)
             ->post(sprintf('%s/trace', $this->getUrl(Config::get('aftermath.dsn'))), $trace);
+
+        if (Config::get('aftermath_internal.debug')) {
+            logger()->debug('Aftermath trace response', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+        }
+
     }
 
     public function getUrl($dsn): string
