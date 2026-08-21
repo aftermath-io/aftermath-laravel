@@ -2,12 +2,13 @@
 
 namespace Aftermath;
 
-use Illuminate\Contracts\Config\Repository;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Contracts\Http\Kernel;
+use Aftermath\Instrumentation\DatabaseInstrumentation;
 use Aftermath\Middleware\AftermathTracingMiddleware;
-use Aftermath\Transport\Transport;
 use Aftermath\Tracing\TracingManager;
+use Aftermath\Transport\Transport;
+use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Support\ServiceProvider;
 
 class AftermathServiceProvider extends ServiceProvider
 {
@@ -25,6 +26,7 @@ class AftermathServiceProvider extends ServiceProvider
         ], 'config');
 
         $this->registerMiddleware($kernel);
+        $this->registerDatabaseInstrumentation();
 
         $this->app->terminating(function () {
             if (config('aftermath.tracing.enabled', true) || app(Aftermath::class)->exceptionWasReported()) {
@@ -53,6 +55,7 @@ class AftermathServiceProvider extends ServiceProvider
             $this->app->singleton(TracingManager::class, function () {
                 return new (config('aftermath.tracing.manager_class'))();
             });
+            $this->app->singleton(DatabaseInstrumentation::class);
         }
     }
 
@@ -82,5 +85,12 @@ class AftermathServiceProvider extends ServiceProvider
     protected function registerTracingMiddleware(Kernel $kernel): void
     {
         $kernel->prependMiddleware(AftermathTracingMiddleware::class);
+    }
+
+    protected function registerDatabaseInstrumentation(): void
+    {
+        if (config('aftermath.tracing.enabled', true)) {
+            $this->app->make(DatabaseInstrumentation::class);
+        }
     }
 }

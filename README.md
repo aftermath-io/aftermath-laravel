@@ -72,8 +72,10 @@ When `AFTERMATH_LOGGING_LEVEL` is not set, the package uses `LOG_LEVEL`, or
 
 HTTP tracing is enabled by default. The package adds middleware that starts a
 server span for each incoming request, records its response status, and uses
-the matched route URI as the span name when Laravel resolves a route. Traces
-are sent when Laravel terminates the request.
+the matched route URI as the span name when Laravel resolves a route. It also
+adds client spans for executed database queries, including the SQL statement,
+connection, driver, and duration. Traces are sent when Laravel terminates the
+request.
 
 Configure tracing with the following environment variables:
 
