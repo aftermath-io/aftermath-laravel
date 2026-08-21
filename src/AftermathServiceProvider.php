@@ -3,6 +3,7 @@
 namespace Aftermath;
 
 use Aftermath\Instrumentation\DatabaseInstrumentation;
+use Aftermath\Instrumentation\HttpInstrumentation;
 use Aftermath\Middleware\AftermathTracingMiddleware;
 use Aftermath\Tracing\TracingManager;
 use Aftermath\Transport\Transport;
@@ -26,7 +27,10 @@ class AftermathServiceProvider extends ServiceProvider
         ], 'config');
 
         $this->registerMiddleware($kernel);
-        $this->registerDatabaseInstrumentation();
+
+        if (config('aftermath.tracing.enabled', true)) {
+            $this->registerInstrumentation();
+        }
 
         $this->app->terminating(function () {
             if (config('aftermath.tracing.enabled', true) || app(Aftermath::class)->exceptionWasReported()) {
@@ -55,7 +59,6 @@ class AftermathServiceProvider extends ServiceProvider
             $this->app->singleton(TracingManager::class, function () {
                 return new (config('aftermath.tracing.manager_class'))();
             });
-            $this->app->singleton(DatabaseInstrumentation::class);
         }
     }
 
@@ -87,10 +90,20 @@ class AftermathServiceProvider extends ServiceProvider
         $kernel->prependMiddleware(AftermathTracingMiddleware::class);
     }
 
-    protected function registerDatabaseInstrumentation(): void
+    protected function registerInstrumentation(): void
     {
-        if (config('aftermath.tracing.enabled', true)) {
-            $this->app->make(DatabaseInstrumentation::class);
+        $instrumentationClasses = config('aftermath.instrumentation', [
+            DatabaseInstrumentation::class,
+            HttpInstrumentation::class,
+        ]);
+
+        foreach ($instrumentationClasses as $instrumentationClass) {
+            if (class_exists($instrumentationClass)) {
+                $instrumentation = $this->app->make($instrumentationClass);
+                if ($instrumentation instanceof \Aftermath\Instrumentation\Instrumentation) {
+                    $instrumentation->boot();
+                }
+            }
         }
     }
 }

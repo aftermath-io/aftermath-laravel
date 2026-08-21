@@ -6,13 +6,17 @@ use Aftermath\Tracing\TracingManager;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Events\QueryExecuted;
 
-final class DatabaseInstrumentation
+final class DatabaseInstrumentation implements Instrumentation
 {
     public function __construct(
-        Dispatcher $events,
+        private Dispatcher $events,
         private readonly TracingManager $tracingManager,
     ) {
-        $events->listen(QueryExecuted::class, $this->recordQuery(...));
+    }
+
+    public function boot(): void
+    {
+        $this->events->listen(QueryExecuted::class, $this->recordQuery(...));
     }
 
     public function recordQuery(QueryExecuted $event): void

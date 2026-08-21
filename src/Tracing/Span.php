@@ -11,7 +11,7 @@ final class Span implements JsonSerializable
         public readonly string $traceId,
         public readonly string $spanId,
         public readonly ?string $parentSpanId,
-        public readonly string $status,
+        public string $status,
         public string $name,
         public readonly string $kind,
         public float $startedAt,
@@ -40,6 +40,11 @@ final class Span implements JsonSerializable
     public function setStartedAt(float $startedAt): void
     {
         $this->startedAt = $startedAt;
+    }
+
+    public function setStatus(string $status): void
+    {
+        $this->status = $status;
     }
 
     public function jsonSerialize(): array
