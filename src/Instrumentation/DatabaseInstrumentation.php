@@ -19,7 +19,7 @@ final class DatabaseInstrumentation
     {
         $span = $this->tracingManager->startSpan(
             name: $event->sql,
-            kind: 'client',
+            kind: 'database',
             parentSpanId: $this->tracingManager->getCurrentSpan()?->spanId,
         );
 
