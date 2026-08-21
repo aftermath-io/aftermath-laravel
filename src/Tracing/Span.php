@@ -37,6 +37,11 @@ final class Span implements JsonSerializable
         $this->name = $name;
     }
 
+    public function setStartedAt(float $startedAt): void
+    {
+        $this->startedAt = $startedAt;
+    }
+
     public function jsonSerialize(): array
     {
         return [

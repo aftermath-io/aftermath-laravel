@@ -23,6 +23,8 @@ final class DatabaseInstrumentation
             parentSpanId: $this->tracingManager->getCurrentSpan()?->spanId,
         );
 
+        $span->setStartedAt(microtime(true) - ($event->time / 1000));
+
         $span->attribute('db.system', $event->connection->getDriverName());
         $span->attribute('db.name', $event->connection->getDatabaseName());
         $span->attribute('db.connection_name', $event->connectionName);
