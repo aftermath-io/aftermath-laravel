@@ -14,7 +14,7 @@ final class Span implements JsonSerializable
         public readonly string $status,
         public string $name,
         public readonly string $kind,
-        public readonly float $startedAt,
+        public float $startedAt,
         private array $attributes = [],
     ) {}
 
