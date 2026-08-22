@@ -22,9 +22,8 @@ class AftermathTracingMiddleware
         $span = $this->tracingManager->startSpan(
             name: sprintf('%s %s', $request->method(), $request->path()),
             kind: 'root',
-        );
-
-        $span->attribute('http.method', $request->method());
+        )
+            ->attribute('http.method', $request->method());
 
         try {
             $response = $next($request);
@@ -42,7 +41,7 @@ class AftermathTracingMiddleware
                 $response->getStatusCode()
             );
         } catch (\Throwable $e) {
-            $this->tracingManager->getCurrentSpan()?->attribute('exception', $e::class);
+            $span->attribute('exception', $e::class);
 
             throw $e;
         } finally {
