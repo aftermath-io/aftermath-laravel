@@ -16,7 +16,6 @@ class HttpInstrumentation implements Instrumentation
 
     public function boot(): void
     {
-        dump($this->tracingManager);
         Http::globalRequestMiddleware(fn ($request) => $this->requestMiddleware($request));
         Http::globalResponseMiddleware(fn ($response) => $this->responseMiddleware($response));
     }
