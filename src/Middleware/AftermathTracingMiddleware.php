@@ -21,7 +21,7 @@ class AftermathTracingMiddleware
     {
         $span = $this->tracingManager->startSpan(
             name: sprintf('%s %s', $request->method(), $request->path()),
-            kind: 'server',
+            kind: 'root',
         );
 
         $span->attribute('http.method', $request->method());
