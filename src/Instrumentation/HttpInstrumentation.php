@@ -22,23 +22,21 @@ class HttpInstrumentation implements Instrumentation
 
     public function requestMiddleware($request)
     {
-        $span = $this->tracingManager->startSpan(
+        $this->tracingManager->startSpan(
             name: $request->getMethod() . ' ' . $request->getUri(),
             kind: 'http',
             parentSpanId: $this->tracingManager->getCurrentSpan()?->spanId,
-        );
-
-        $span->attribute('http.method', $request->getMethod());
+        )
+            ->attribute('http.method', $request->getMethod());
 
         return $request;
     }
 
     public function responseMiddleware($response)
     {
-        $span = $this->tracingManager->getCurrentSpan();
-        $span->attribute('http.status_code', $response->getStatusCode());
-
-        $this->tracingManager->finishCurrentSpan();
+        $this->tracingManager->getCurrentSpan()
+            ->attribute('http.status_code', $response->getStatusCode())
+            ->finish();
 
         return $response;
     }

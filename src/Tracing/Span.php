@@ -32,19 +32,25 @@ final class Span implements JsonSerializable
         $this->finishedAt ??= microtime(true);
     }
 
-    public function setName(string $name): void
+    public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
     }
 
-    public function setStartedAt(float $startedAt): void
+    public function setStartedAt(float $startedAt): self
     {
         $this->startedAt = $startedAt;
+
+        return $this;
     }
 
-    public function setStatus(string $status): void
+    public function setStatus(string $status): self
     {
         $this->status = $status;
+
+        return $this;
     }
 
     public function jsonSerialize(): array

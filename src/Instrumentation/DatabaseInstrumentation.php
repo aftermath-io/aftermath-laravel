@@ -21,20 +21,17 @@ final class DatabaseInstrumentation implements Instrumentation
 
     public function recordQuery(QueryExecuted $event): void
     {
-        $span = $this->tracingManager->startSpan(
+        $this->tracingManager->startSpan(
             name: $event->sql,
             kind: 'database',
             parentSpanId: $this->tracingManager->getCurrentSpan()?->spanId,
-        );
-
-        $span->setStartedAt(microtime(true) - ($event->time / 1000));
-
-        $span->attribute('db.system', $event->connection->getDriverName());
-        $span->attribute('db.name', $event->connection->getDatabaseName());
-        $span->attribute('db.connection_name', $event->connectionName);
-        $span->attribute('db.statement', $event->sql);
-        $span->attribute('db.duration_ms', $event->time);
-
-        $this->tracingManager->finishSpan($span);
+        )
+            ->setStartedAt(microtime(true) - ($event->time / 1000))
+            ->attribute('db.system', $event->connection->getDriverName())
+            ->attribute('db.name', $event->connection->getDatabaseName())
+            ->attribute('db.connection_name', $event->connectionName)
+            ->attribute('db.statement', $event->sql)
+            ->attribute('db.duration_ms', $event->time)
+            ->finish();
     }
 }
