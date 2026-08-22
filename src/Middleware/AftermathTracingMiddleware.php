@@ -46,7 +46,7 @@ class AftermathTracingMiddleware
 
             throw $e;
         } finally {
-            $this->tracingManager->getCurrentSpan()?->finish();
+            $this->tracingManager->finishCurrentSpan();
         }
 
         return $response;

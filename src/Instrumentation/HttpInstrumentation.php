@@ -35,8 +35,9 @@ class HttpInstrumentation implements Instrumentation
     public function responseMiddleware($response)
     {
         $this->tracingManager->getCurrentSpan()
-            ->attribute('http.status_code', $response->getStatusCode())
-            ->finish();
+            ->attribute('http.status_code', $response->getStatusCode());
+
+        $this->tracingManager->finishCurrentSpan();
 
         return $response;
     }

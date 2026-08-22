@@ -31,7 +31,8 @@ final class DatabaseInstrumentation implements Instrumentation
             ->attribute('db.name', $event->connection->getDatabaseName())
             ->attribute('db.connection_name', $event->connectionName)
             ->attribute('db.statement', $event->sql)
-            ->attribute('db.duration_ms', $event->time)
-            ->finish();
+            ->attribute('db.duration_ms', $event->time);
+            
+        $this->tracingManager->finishCurrentSpan();
     }
 }
