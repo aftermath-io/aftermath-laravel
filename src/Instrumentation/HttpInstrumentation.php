@@ -38,7 +38,7 @@ class HttpInstrumentation implements Instrumentation
         $span = $this->tracingManager->getCurrentSpan();
         $span->attribute('http.status_code', $response->getStatusCode());
 
-        $this->tracingManager->finishSpan($span);
+        $this->tracingManager->finishCurrentSpan();
 
         return $response;
     }

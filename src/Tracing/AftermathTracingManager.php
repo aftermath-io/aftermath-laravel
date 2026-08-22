@@ -61,6 +61,13 @@ class AftermathTracingManager extends TracingManager
             : $this->spanStack[array_key_last($this->spanStack)];
     }
 
+    public function finishCurrentSpan(): void
+    {
+        if ($this->currentSpan !== null) {
+            $this->finishSpan($this->currentSpan);
+        }
+    }
+
     public function getCurrentTrace(): ?Trace
     {
         return $this->currentTrace;

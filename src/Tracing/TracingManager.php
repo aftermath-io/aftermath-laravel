@@ -13,6 +13,8 @@ abstract class TracingManager
 
     abstract public function finishSpan(Span $span): void;
 
+    abstract public function finishCurrentSpan(): void;
+
     abstract public function getCurrentTrace(): ?Trace;
 
     abstract public function getCurrentSpan(): ?Span;

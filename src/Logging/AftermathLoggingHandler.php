@@ -2,6 +2,7 @@
 
 namespace Aftermath\Logging;
 
+use Aftermath\Tracing\TracingManager;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Level;
 use Monolog\LogRecord;
@@ -27,6 +28,14 @@ class AftermathLoggingHandler extends AbstractProcessingHandler
             return;
         }
 
+        if (config('aftermath.tracing.enabled', true)) {
+            app(TracingManager::class)->startSpan($record->message, 'log');
+        }
+
         app('aftermath')->captureLog(new \Aftermath\Event\LogEvent($record));
+
+        if (config('aftermath.tracing.enabled', true)) {
+            app(TracingManager::class)->finishCurrentSpan();
+        }
     }
 }

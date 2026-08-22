@@ -2,6 +2,7 @@
 
 namespace Aftermath;
 
+use Aftermath\Tracing\TracingManager;
 use Aftermath\Transport\Transport;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -23,8 +24,14 @@ final class Aftermath
     public static function handles(Exceptions $exceptions)
     {
         $exceptions->reportable(function (Throwable $throwable) {
+            if (config('aftermath.tracing.enabled', true)) {
+                app(TracingManager::class)->startSpan($throwable->getMessage(), 'exception');
+            }
             $exceptionEvent = new ExceptionEvent($throwable);
             app(self::class)->captureException($exceptionEvent);
+            if (config('aftermath.tracing.enabled', true)) {
+                app(TracingManager::class)->finishCurrentSpan();
+            }
         });
     }
 
@@ -71,7 +78,7 @@ final class Aftermath
         if (!self::enabled()) {
             return;
         }
-        
+
         if ($this->eventBuffer->isEmpty()) {
             return;
         }
