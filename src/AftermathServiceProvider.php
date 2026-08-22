@@ -16,9 +16,9 @@ class AftermathServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigs();
-        $this->registerServices();
-        $this->registerLoggingChannel();
+        $this->mergeConfigs()
+            ->registerServices()
+            ->registerLoggingChannel();
     }
 
     public function boot(Kernel $kernel): void
@@ -45,14 +45,16 @@ class AftermathServiceProvider extends ServiceProvider
         });
     }
 
-    protected function mergeConfigs(): void
+    protected function mergeConfigs(): self
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/aftermath.php', 'aftermath');
         $this->mergeConfigFrom(__DIR__ . '/../config/aftermath_internal.php', 'aftermath_internal');
         $this->mergeConfigFrom(__DIR__ . '/../config/logging.php', 'logging');
+
+        return $this;
     }
 
-    protected function registerServices(): void
+    protected function registerServices(): self
     {
         $this->app->bind(Transport::class, config('aftermath.transport'));
         $this->app->singleton(EventBuffer::class, config('aftermath.event_buffer'));
@@ -66,9 +68,11 @@ class AftermathServiceProvider extends ServiceProvider
                 return new (config('aftermath.tracing.manager_class'))();
             });
         }
+
+        return $this;
     }
 
-    protected function registerLoggingChannel(): void
+    protected function registerLoggingChannel(): self
     {
         $config = $this->app->get(Repository::class);
 
@@ -82,21 +86,27 @@ class AftermathServiceProvider extends ServiceProvider
 
             $config->set('logging.channels', $channels);
         }
+
+        return $this;
     }
 
-    protected function registerMiddleware(Kernel $kernel): void
+    protected function registerMiddleware(Kernel $kernel): self
     {
         if (config('aftermath.tracing.enabled', true)) {
             $this->registerTracingMiddleware($kernel);
         }
+
+        return $this;
     }
 
-    protected function registerTracingMiddleware(Kernel $kernel): void
+    protected function registerTracingMiddleware(Kernel $kernel): self
     {
         $kernel->prependMiddleware(AftermathTracingMiddleware::class);
+
+        return $this;
     }
 
-    protected function registerInstrumentation(): void
+    protected function registerInstrumentation(): self
     {
         $instrumentationClasses = config('aftermath.instrumentation', [
             DatabaseInstrumentation::class,
@@ -111,5 +121,7 @@ class AftermathServiceProvider extends ServiceProvider
                 }
             }
         }
+
+        return $this;
     }
 }
