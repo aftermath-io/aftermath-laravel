@@ -3,9 +3,10 @@
 namespace Aftermath\Instrumentation;
 
 use Aftermath\Tracing\TracingManager;
+use Aftermath\Instrumentation\Instrumentation;
 use Illuminate\Support\Facades\Http;
 
-class HttpInstrumentation
+class HttpInstrumentation implements Instrumentation
 {
     public function __construct(
         protected readonly TracingManager $tracingManager,
@@ -13,35 +14,33 @@ class HttpInstrumentation
     {
     }
 
-    public function boot()
+    public function boot(): void
     {
-        Http::globalMiddleware(self::middleware(...));
+        dump($this->tracingManager);
+        Http::globalRequestMiddleware(fn ($request) => $this->requestMiddleware($request));
+        Http::globalResponseMiddleware(fn ($response) => $this->responseMiddleware($response));
     }
 
-    public function middleware($request, $next)
+    public function requestMiddleware($request)
     {
         $span = $this->tracingManager->startSpan(
-            name: $request->method() . ' ' . $request->url(),
+            name: $request->getMethod() . ' ' . $request->getUri(),
             kind: 'http',
             parentSpanId: $this->tracingManager->getCurrentSpan()?->spanId,
         );
 
-        $span->attribute('http.method', $request->method());
-        $span->attribute('http.url', (string) $request->url());
+        $span->attribute('http.method', $request->getMethod());
 
-        try {
-            $response = $next($request);
+        return $request;
+    }
 
-            $span->attribute('http.status_code', $response->status());
+    public function responseMiddleware($response)
+    {
+        $span = $this->tracingManager->getCurrentSpan();
+        $span->attribute('http.status_code', $response->getStatusCode());
 
-            return $response;
-        } catch (\Throwable $e) {
-            $span->attribute('error', true);
-            $span->attribute('error.message', $e->getMessage());
-            $span->setStatus('error');
-            throw $e;
-        } finally {
-            $this->tracingManager->finishSpan($span);
-        }
+        $this->tracingManager->finishSpan($span);
+
+        return $response;
     }
 }

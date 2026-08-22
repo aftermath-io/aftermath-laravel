@@ -4,6 +4,7 @@ namespace Aftermath;
 
 use Aftermath\Instrumentation\DatabaseInstrumentation;
 use Aftermath\Instrumentation\HttpInstrumentation;
+use Aftermath\EventBuffer;
 use Aftermath\Middleware\AftermathTracingMiddleware;
 use Aftermath\Tracing\TracingManager;
 use Aftermath\Transport\Transport;
@@ -33,6 +34,10 @@ class AftermathServiceProvider extends ServiceProvider
         }
 
         $this->app->terminating(function () {
+            if (config('aftermath.enabled', true)) {
+                app(Aftermath::class)->flushEventBuffer();
+            }
+
             if (config('aftermath.tracing.enabled', true) || app(Aftermath::class)->exceptionWasReported()) {
                 app(TracingManager::class)->flush();
                 app(Aftermath::class)->resetExceptionReported();
@@ -50,9 +55,10 @@ class AftermathServiceProvider extends ServiceProvider
     protected function registerServices(): void
     {
         $this->app->bind(Transport::class, config('aftermath.transport'));
-        
+        $this->app->singleton(EventBuffer::class, config('aftermath.event_buffer'));
+
         $this->app->singleton('aftermath', function () {
-            return new Aftermath(app(Transport::class));
+            return new Aftermath(app(Transport::class), app(EventBuffer::class));
         });
 
         if (config('aftermath.tracing.enabled', true)) {

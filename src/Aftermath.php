@@ -15,6 +15,7 @@ final class Aftermath
 
     public function __construct(
         private readonly Transport $transport,
+        private readonly AftermathEventBuffer $eventBuffer,
         private bool $exceptionWasReported = false,
     )
     {}
@@ -22,7 +23,8 @@ final class Aftermath
     public static function handles(Exceptions $exceptions)
     {
         $exceptions->reportable(function (Throwable $throwable) {
-            app(Aftermath::class)->captureException($throwable);
+            $exceptionEvent = new ExceptionEvent($throwable);
+            app(self::class)->captureException($exceptionEvent);
         });
     }
 
@@ -31,38 +33,27 @@ final class Aftermath
         return Config::get('aftermath.enabled', true);
     } 
 
-    private function captureException(Throwable $throwable): void
+    private function captureException(ExceptionEvent $event): self
     {
         if (!self::enabled()) {
-            return;
+            return $this;
         }
 
-        try {
-            $event = new ExceptionEvent($throwable);
-    
-            $this->transport->sendEvent($event->toArray());
+        $this->eventBuffer->push($event);
+        $this->exceptionWasReported = true;
 
-            $this->exceptionWasReported = true;
-        } catch (\Throwable $e) {
-            if (Config::get('aftermath_internal.debug')) {
-                throw $e;
-            }
-        }
+        return $this;
     }
 
-    public function captureLog(LogEvent $event): void
+    public function captureLog(LogEvent $event): self
     {
         if (!self::enabled()) {
-            return;
+            return $this;
         }
 
-        try {
-            $this->transport->sendEvent($event->toArray());
-        } catch (\Throwable $e) {
-            if (Config::get('aftermath_internal.debug')) {
-                throw $e;
-            }
-        }
+        $this->eventBuffer->push($event);
+
+        return $this;
     }
 
     public function exceptionWasReported(): bool
@@ -73,5 +64,26 @@ final class Aftermath
     public function resetExceptionReported(): void
     {
         $this->exceptionWasReported = false;
+    }
+
+    public function flushEventBuffer(): void
+    {
+        if (!self::enabled()) {
+            return;
+        }
+        
+        if ($this->eventBuffer->isEmpty()) {
+            return;
+        }
+
+        $events = $this->eventBuffer->pull();
+
+        try {
+            $this->transport->sendEvents(array_map(fn($event) => $event->toArray(), $events));
+        } catch (\Throwable $e) {
+            if (Config::get('aftermath_internal.debug')) {
+                throw $e;
+            }
+        }
     }
 }

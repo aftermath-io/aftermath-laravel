@@ -2,8 +2,17 @@
 
 namespace Aftermath\Transport;
 
-interface Transport
+abstract class Transport
 {
-    public function sendEvent(array $event): void;
-    public function sendTrace(array $trace): void;
+    abstract public function sendEvents(array $events): void;
+    abstract public function sendTrace(array $trace): void;
+
+    public function getUrl($dsn): string
+    {
+        if (config('aftermath_internal.debug')) {
+            return "http://localhost:8081/api/ingest/{$dsn}";
+        }
+
+        return "https://ingest.aftermath.dev/api/ingest/{$dsn}";
+    }
 }

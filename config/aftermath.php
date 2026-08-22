@@ -10,6 +10,8 @@ return [
 
     'transport' => Aftermath\Transport\HttpTransport::class,
 
+    'event_buffer' => Aftermath\AftermathEventBuffer::class,
+
     'enabled' => env('AFTERMATH_ENABLED', true),
 
     'logging' => [

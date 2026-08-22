@@ -6,12 +6,15 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Config;
 use Aftermath\Transport\Transport;
 
-class HttpTransport implements Transport
+class HttpTransport extends Transport
 {
-    public function sendEvent(array $event): void
+    public function sendEvents(array $events): void
     {
         Http::timeout(2)
-            ->post($this->getUrl(Config::get('aftermath.dsn')), $event);
+            ->post(
+                $this->getUrl(Config::get('aftermath.dsn')), 
+                ['events' => $events]
+            );
     }
 
     public function sendTrace(array $trace): void
@@ -26,14 +29,5 @@ class HttpTransport implements Transport
             ]);
         }
 
-    }
-
-    public function getUrl($dsn): string
-    {
-        if (Config::get('aftermath_internal.debug')) {
-            return "http://localhost:8081/api/ingest/{$dsn}";
-        }
-
-        return "https://ingest.aftermath.dev/api/ingest/{$dsn}";
     }
 }
