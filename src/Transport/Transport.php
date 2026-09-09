@@ -13,6 +13,6 @@ abstract class Transport
             return "http://localhost:8081/api/ingest/{$dsn}";
         }
 
-        return "https://ingest.aftermath.dev/api/ingest/{$dsn}";
+        return "https://ingest.getaftermath.dev/api/ingest/{$dsn}";
     }
 }
