@@ -35,12 +35,12 @@ class AftermathServiceProvider extends ServiceProvider
 
         $this->app->terminating(function () {
             if (config('aftermath.enabled', true)) {
-                app(Aftermath::class)->flushEventBuffer();
+                app('aftermath')->flushEventBuffer();
             }
 
-            if (config('aftermath.tracing.enabled', true) || app(Aftermath::class)->exceptionWasReported()) {
+            if (config('aftermath.tracing.enabled', true) || app('aftermath')->exceptionWasReported()) {
                 app(TracingManager::class)->flush();
-                app(Aftermath::class)->resetExceptionReported();
+                app('aftermath')->resetExceptionReported();
             }
         });
     }
